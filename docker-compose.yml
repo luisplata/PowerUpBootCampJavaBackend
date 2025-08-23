@@ -1,28 +1,27 @@
-version: '3.8'
 services:
-  mysql:
-    image: mysql:8.0
+  postgres:
+    image: postgres:16
     environment:
-      MYSQL_DATABASE: perylothdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: rootpassword
+      POSTGRES_DB: perylothdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - pg_data:/var/lib/postgresql/data
 
   app-service:
     build:
-      context: ./deployment
+      context: .
+      dockerfile: deployment/Dockerfile
     depends_on:
-      - mysql
+      - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/perylothdb
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/perylothdb
+      SPRING_R2DBC_USERNAME: user
+      SPRING_R2DBC_PASSWORD: password
     ports:
       - "8080:8080"
 
 volumes:
-  db_data:
+  pg_data:

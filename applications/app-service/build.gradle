@@ -1,6 +1,9 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+	implementation project(':r2dbc-postgresql')
+	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
+	implementation project(':jpa-repository')
 	implementation project(':reactive-web')
     implementation project(':model')
     implementation project(':usecase')
