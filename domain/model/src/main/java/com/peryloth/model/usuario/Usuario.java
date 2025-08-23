@@ -21,6 +21,6 @@ public class Usuario {
     private String email;
     private LocalDate fechaNacimiento;
     private String direccion;
-    private long salarioBase;
+    private Long salarioBase;
 
 }

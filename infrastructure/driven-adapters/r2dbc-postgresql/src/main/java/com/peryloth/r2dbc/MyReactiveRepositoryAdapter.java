@@ -22,7 +22,7 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public void saveUsuario(Usuario usuario) {
-        System.out.println("Guardando usuario: " + usuario.getEmail());
+        System.out.println("Guardando usuario: " + usuario.getNombre());
         save(usuario).subscribe();
     }
 }

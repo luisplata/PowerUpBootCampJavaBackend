@@ -1,3 +1,9 @@
+# anotaciones de proyecto
+
+## problemas
+
+- No se pudo ejecutar migraciones con flyway de forma exitosa; se ejecutaron los SQL de forma manual en la base de datos.
+
 # Proyecto Base Implementando Clean Architecture
 
 ## Antes de Iniciar
