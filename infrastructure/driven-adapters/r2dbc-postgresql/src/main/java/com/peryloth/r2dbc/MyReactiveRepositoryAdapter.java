@@ -7,11 +7,13 @@ import com.peryloth.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
+
 @Repository
 public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         Usuario/* change for domain model */,
         UsuarioEntity/* change for adapter model */,
-        Long,
+        BigInteger,
         MyReactiveRepository
         > implements UsuarioRepository {
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper) {
@@ -20,6 +22,7 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public void saveUsuario(Usuario usuario) {
+        System.out.println("Guardando usuario: " + usuario.getEmail());
         save(usuario).subscribe();
     }
 }

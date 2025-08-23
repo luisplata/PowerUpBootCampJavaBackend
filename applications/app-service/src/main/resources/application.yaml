@@ -5,10 +5,6 @@ spring:
     name: "Semana1"
   devtools:
     add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: "/h2"
   profiles:
     include: null
   datasource:
@@ -16,8 +12,14 @@ spring:
     username: "sa"
     password: "pass"
     driverClassName: "org.h2.Driver"
-  jpa:
-    databasePlatform: "org.hibernate.dialect.H2Dialect"
+adapters:
+  r2dbc:
+    host: ${POSTGRES_HOST:postgres}
+    port: ${POSTGRES_PORT:5432}
+    database: ${POSTGRES_DB:perylothdb}
+    schema: public
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
 management:
   endpoints:
     web:
@@ -29,12 +31,3 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
-
-adapters:
-  r2dbc:
-    host: localhost
-    port: 5432
-    database: tu_base
-    schema: public
-    username: tu_usuario
-    password: tu_clave

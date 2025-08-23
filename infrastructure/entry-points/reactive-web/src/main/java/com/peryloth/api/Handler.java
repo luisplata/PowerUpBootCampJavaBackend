@@ -36,12 +36,10 @@ public class Handler {
     }
 
     public Mono<ServerResponse> saveUser(ServerRequest serverRequest) {
-        // Logic to save user
-        registryUserUseCase.RegistryUser(userDTOMapper.mapToEntity(new RegistryUserDTO(
-                Long.valueOf(1), "John", "Doe", "asasas@sasas.asas",
-                LocalDate.of(1990, 1, 1),
-                "calle", 123456
-        )));
-        return ServerResponse.ok().bodyValue("User saved successfully");
+        return serverRequest.bodyToMono(RegistryUserDTO.class)
+                .flatMap(dto -> {
+                    registryUserUseCase.RegistryUser(userDTOMapper.mapToEntity(dto));
+                    return ServerResponse.ok().bodyValue("Usuario guardado correctamente");
+                });
     }
 }

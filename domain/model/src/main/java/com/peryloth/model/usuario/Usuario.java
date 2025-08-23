@@ -6,6 +6,7 @@ import lombok.Getter;
 //import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 @Getter
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Usuario {
-    private Long id;
+    private BigInteger id;
     private String nombre;
     private String apellido;
     private String email;
