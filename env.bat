@@ -1,0 +1,9 @@
+﻿@echo off
+set SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/perylothdb
+set SPRING_R2DBC_USERNAME=user
+set SPRING_R2DBC_PASSWORD=password
+set POSTGRES_HOST=postgres
+set POSTGRES_PORT=5432
+set POSTGRES_DB=perylothdb
+set POSTGRES_USER=user
+set POSTGRES_PASSWORD=password
