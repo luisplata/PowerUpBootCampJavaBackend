@@ -1,7 +1,9 @@
 package com.peryloth.model.usuario.gateways;
 
 import com.peryloth.model.usuario.Usuario;
+import reactor.core.publisher.Mono;
 
 public interface UsuarioRepository {
-    void saveUsuario(Usuario usuario);
+    Mono<Void> saveUsuario(Usuario usuario);
+    Mono<Usuario> getUsuarioByEmail(String email);
 }

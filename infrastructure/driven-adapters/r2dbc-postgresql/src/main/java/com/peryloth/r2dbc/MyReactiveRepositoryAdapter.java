@@ -6,6 +6,7 @@ import com.peryloth.r2dbc.entity.UsuarioEntity;
 import com.peryloth.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
 
@@ -21,8 +22,15 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     }
 
     @Override
-    public void saveUsuario(Usuario usuario) {
+    public Mono<Void> saveUsuario(Usuario usuario) {
         System.out.println("Guardando usuario: " + usuario.getNombre());
-        save(usuario).subscribe();
+        return save(usuario).then();
+    }
+
+    @Override
+    public Mono<Usuario> getUsuarioByEmail(String email) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        return findByExample(usuario).next();
     }
 }
