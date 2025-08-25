@@ -18,3 +18,7 @@ CREATE TABLE usuario (
         ON UPDATE CASCADE
         ON DELETE SET NULL
 );
+
+INSERT INTO rol (unique_id, nombre, descripcion)
+VALUES (1, 'ADMIN', 'Administrador del sistema'),
+       (2, 'USER', 'Usuario estándar');
