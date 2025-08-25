@@ -1,8 +1,8 @@
 package com.peryloth.api.mapper.registry;
 
-import com.peryloth.api.DTO.registry.RegistryUserDTO;
-import com.peryloth.api.DTO.registry.UsuarioRequestDTO;
-import com.peryloth.api.DTO.registry.UsuarioResponseDTO;
+import com.peryloth.api.dto.registry.RegistryUserDTO;
+import com.peryloth.api.dto.registry.UsuarioRequestDTO;
+import com.peryloth.api.dto.registry.UsuarioResponseDTO;
 import com.peryloth.model.usuario.Usuario;
 import org.mapstruct.Mapper;
 

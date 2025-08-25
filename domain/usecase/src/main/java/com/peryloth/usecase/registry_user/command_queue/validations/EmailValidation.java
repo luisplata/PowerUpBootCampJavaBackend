@@ -1,4 +1,4 @@
-package com.peryloth.usecase.registryuser.commandQueue.validations;
+package com.peryloth.usecase.registry_user.command_queue.validations;
 
 import com.peryloth.model.usuario.Usuario;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;

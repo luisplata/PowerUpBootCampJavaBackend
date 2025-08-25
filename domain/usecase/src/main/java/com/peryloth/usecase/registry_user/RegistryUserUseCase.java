@@ -1,13 +1,13 @@
-package com.peryloth.usecase.registryuser;
+package com.peryloth.usecase.registry_user;
 
 import com.peryloth.model.rol.gateways.RolRepository;
 import com.peryloth.model.usuario.Usuario;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
-import com.peryloth.usecase.registryuser.commandQueue.UsuarioValidationQueue;
-import com.peryloth.usecase.registryuser.commandQueue.validations.ApellidoValidation;
-import com.peryloth.usecase.registryuser.commandQueue.validations.EmailValidation;
-import com.peryloth.usecase.registryuser.commandQueue.validations.NombreValidation;
-import com.peryloth.usecase.registryuser.commandQueue.validations.SalarioBaseValidation;
+import com.peryloth.usecase.registry_user.command_queue.UsuarioValidationQueue;
+import com.peryloth.usecase.registry_user.command_queue.validations.ApellidoValidation;
+import com.peryloth.usecase.registry_user.command_queue.validations.EmailValidation;
+import com.peryloth.usecase.registry_user.command_queue.validations.NombreValidation;
+import com.peryloth.usecase.registry_user.command_queue.validations.SalarioBaseValidation;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +20,7 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
     private final RolRepository rolRepository;
 
     @Override
-    public Mono<Void> RegistryUser(Usuario usuario) {
+    public Mono<Void> registryUser(Usuario usuario) {
         UsuarioValidationQueue validationQueue = new UsuarioValidationQueue()
                 .addValidation(new NombreValidation())
                 .addValidation(new ApellidoValidation())
@@ -34,9 +34,8 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
                         .switchIfEmpty(Mono.error(new IllegalArgumentException("Rol fijo no encontrado")))
                         .flatMap(rol -> {
                             Usuario usuarioConRol = usuario.toBuilder().rol(rol).build();
-                            System.out.println("Usuario con rol asignado: " + usuarioConRol.getRol().getUniqueId());
                             return usuarioRepository.saveUsuario(usuarioConRol);
-                        })
+                        }).log()
                 ).then();
     }
 }
