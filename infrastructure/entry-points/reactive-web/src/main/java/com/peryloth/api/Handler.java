@@ -1,6 +1,7 @@
 package com.peryloth.api;
 
 import com.peryloth.api.DTO.registry.RegistryUserDTO;
+import com.peryloth.api.DTO.registry.UsuarioRequestDTO;
 import com.peryloth.api.mapper.registry.UserDTOMapper;
 import com.peryloth.usecase.registryuser.IRegistryUserUseCase;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,13 @@ public class Handler {
     }
 
     public Mono<ServerResponse> saveUser(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(RegistryUserDTO.class)
-                .flatMap(dto -> {
-                    registryUserUseCase.RegistryUser(userDTOMapper.mapToEntity(dto));
-                    return ServerResponse.ok().bodyValue("Usuario guardado correctamente");
-                });
+        return serverRequest.bodyToMono(UsuarioRequestDTO.class)
+                .flatMap(dto ->
+                        registryUserUseCase.RegistryUser(userDTOMapper.mapToEntity(dto))
+                                .then(ServerResponse.ok().bodyValue("Usuario guardado correctamente"))
+                )
+                .onErrorResume(IllegalArgumentException.class,
+                        e -> ServerResponse.badRequest().bodyValue("Error de validación: " + e.getMessage()))
+                .onErrorResume(e -> ServerResponse.status(500).bodyValue("Error interno: " + e.getMessage()));
     }
 }

@@ -14,12 +14,12 @@ public class EmailValidation implements UsuarioValidation {
     @Override
     public Mono<Void> validate(Usuario usuario) {
         if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("El campo correo_electronico no puede ser nulo o vacío");
+            return Mono.error(new IllegalArgumentException("El campo correo_electronico no puede ser nulo o vacío"));
         }
         // el correo_electronico tenga un formato de email válido.
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!usuario.getEmail().matches(emailRegex)) {
-            throw new IllegalArgumentException("El campo correo_electronico debe tener un formato de email válido");
+            return Mono.error(new IllegalArgumentException("El campo correo_electronico debe tener un formato de email válido"));
         }
         return usuarioRepository.getUsuarioByEmail(usuario.getEmail())
                 .flatMap(existing -> Mono.error(new IllegalArgumentException("Correo ya existe")))

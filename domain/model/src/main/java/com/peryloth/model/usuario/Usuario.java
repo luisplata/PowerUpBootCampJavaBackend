@@ -1,10 +1,8 @@
 package com.peryloth.model.usuario;
 
+import com.peryloth.model.rol.Rol;
 import lombok.*;
-//import lombok.NoArgsConstructor;
-
 import java.math.BigInteger;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -12,12 +10,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Usuario {
-    private BigInteger id;
+    private BigInteger idUsuario;
     private String nombre;
     private String apellido;
     private String email;
-    private LocalDate fechaNacimiento;
-    private String direccion;
+    private String documentoIdentidad;
+    private String telefono;
+    private Rol rol;
     private Long salarioBase;
-
 }

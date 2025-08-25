@@ -4,6 +4,6 @@ import com.peryloth.model.usuario.Usuario;
 import reactor.core.publisher.Mono;
 
 public interface UsuarioRepository {
-    Mono<Void> saveUsuario(Usuario usuario);
+    Mono<Usuario> saveUsuario(Usuario usuario);
     Mono<Usuario> getUsuarioByEmail(String email);
 }

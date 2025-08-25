@@ -3,20 +3,11 @@
 ## problemas
 
 - No se pudo ejecutar migraciones con flyway de forma exitosa; se ejecutaron los SQL de forma manual en la base de datos.
-- Cuando se intenta insertad datos en la base de datos, este falla por el error, teniendo en cuenta que se estan leyendo correctamente los valores del modelo y se envian todos como se ve en el log:
-```txt
-"usuario" violates not-null constraint
 
-Caused by: org.springframework.dao.DataIntegrityViolationException: executeMany; SQL [INSERT INTO usuario VALUES (DEFAULT)]; null value in column "nombre" of relation "usuario" violates not-null constraint
-
-	at org.springframework.r2dbc.connection.ConnectionFactoryUtils.convertR2dbcException(ConnectionFactoryUtils.java:247) ~[spring-r2dbc-6.2.9.jar!/:6.2.9]
-
-	at org.springframework.r2dbc.core.DefaultDatabaseClient.lambda$inConnectionMany$8(DefaultDatabaseClient.java:157) ~[spring-r2dbc-6.2.9.jar!/:6.2.9]
-```
 
 ## TODO
 
-- Durante la validacion de los datos del usuario, este no lo esta haciendo correctamente. Verificar que se este ejecutando todo reactivamente, ya que al momento de guardar no valida y tampoco guarda
+- Falta hacer que cuando se guarde el usuario, se inserte el rol porque no lo esta guardando.
 
 # Proyecto Base Implementando Clean Architecture
 
