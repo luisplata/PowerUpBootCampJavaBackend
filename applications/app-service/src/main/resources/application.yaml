@@ -14,12 +14,12 @@ spring:
     driverClassName: "org.h2.Driver"
 adapters:
   r2dbc:
-    host: ${POSTGRES_HOST:postgres}
-    port: ${POSTGRES_PORT:5432}
-    database: ${POSTGRES_DB:perylothdb}
-    schema: public
-    username: ${POSTGRES_USER:user}
-    password: ${POSTGRES_PASSWORD:password}
+    host: "${POSTGRES_HOST:postgres}"
+    port: "${POSTGRES_PORT:5432}"
+    database: "${POSTGRES_DB:perylothdb}"
+    schema: "public"
+    username: "${POSTGRES_USER:user}"
+    password: "${POSTGRES_PASSWORD:password}"
 management:
   endpoints:
     web:
@@ -31,3 +31,9 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+adapter:
+  sqs:
+    region: "us-east-1"
+    requestQueueUrl: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-request-queue"
+    responseQueueUrl: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-response-queue"
+    endpoint: "http://localhost:4566" # LocalStack
