@@ -20,7 +20,7 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
     private final RolRepository rolRepository;
 
     @Override
-    public Mono<Void> registryUser(Usuario usuario) {
+    public Mono<Usuario> registryUser(Usuario usuario) {
         UsuarioValidationQueue validationQueue = new UsuarioValidationQueue()
                 .addValidation(new NombreValidation())
                 .addValidation(new ApellidoValidation())
@@ -36,6 +36,6 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
                             Usuario usuarioConRol = usuario.toBuilder().rol(rol).build();
                             return usuarioRepository.saveUsuario(usuarioConRol);
                         }).log()
-                ).then();
+                );
     }
 }

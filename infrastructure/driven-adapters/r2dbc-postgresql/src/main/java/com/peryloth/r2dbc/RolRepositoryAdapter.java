@@ -33,8 +33,14 @@ public class RolRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Rol> getRolById(BigInteger id) {
+        if (rolRepository == null) {
+            return Mono.error(new IllegalStateException("RolReactiveRepository no inicializado"));
+        }
+
         return rolRepository.findById(id)
                 .map(rolEntity -> mapperRol.map(rolEntity, Rol.class))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Rol no encontrado con id=" + id)));
+                .switchIfEmpty(Mono.error(
+                        new IllegalArgumentException("Rol no encontrado con id=" + id)
+                ));
     }
 }

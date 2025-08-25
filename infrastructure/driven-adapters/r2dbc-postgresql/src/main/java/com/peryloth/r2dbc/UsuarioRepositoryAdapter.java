@@ -29,7 +29,6 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Usuario> saveUsuario(Usuario usuario) {
-        // Map domain -> data to ensure rolId is populated from usuario.rol.uniqueId
         UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         BigInteger rolId = usuario != null && usuario.getRol() != null ? usuario.getRol().getUniqueId() : null;
         entity.setRolId(rolId);
@@ -37,7 +36,6 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(saved -> {
                     Usuario mapped = mapper.map(saved, Usuario.class);
                     if (saved.getRolId() != null) {
-                        // Rebuild a minimal Rol in domain so it's not null
                         mapped.setRol(Rol.builder().uniqueId(saved.getRolId()).build());
                     }
                     return mapped;
@@ -49,6 +47,8 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Usuario> getUsuarioByEmail(String email) {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
-        return findByExample(usuario).next();
+        return findByExample(usuario)
+                .next()
+                .switchIfEmpty(Mono.empty());
     }
 }
