@@ -1,7 +1,6 @@
 package com.peryloth.r2dbc;
 
 import com.peryloth.model.rol.Rol;
-import com.peryloth.model.rol.gateways.RolRepository;
 import com.peryloth.model.usuario.Usuario;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
 import com.peryloth.r2dbc.entity.UsuarioEntity;
@@ -30,7 +29,19 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Usuario> saveUsuario(Usuario usuario) {
-        return save(usuario) // suponiendo que esto retorna Mono<Usuario>
+        // Map domain -> data to ensure rolId is populated from usuario.rol.uniqueId
+        UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
+        BigInteger rolId = usuario != null && usuario.getRol() != null ? usuario.getRol().getUniqueId() : null;
+        entity.setRolId(rolId);
+        return repository.save(entity)
+                .map(saved -> {
+                    Usuario mapped = mapper.map(saved, Usuario.class);
+                    if (saved.getRolId() != null) {
+                        // Rebuild a minimal Rol in domain so it's not null
+                        mapped.setRol(Rol.builder().uniqueId(saved.getRolId()).build());
+                    }
+                    return mapped;
+                })
                 .doOnNext(u -> log.info("Usuario guardado con id={}", u.getIdUsuario()));
     }
 

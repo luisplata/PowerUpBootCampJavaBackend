@@ -7,7 +7,7 @@
 
 ## TODO
 
-- Falta hacer que cuando se guarde el usuario, se inserte el rol porque no lo esta guardando.
+- 
 
 # Proyecto Base Implementando Clean Architecture
 
