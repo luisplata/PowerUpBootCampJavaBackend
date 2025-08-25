@@ -4,6 +4,7 @@ import com.peryloth.api.DTO.registry.RegistryUserDTO;
 import com.peryloth.api.DTO.registry.UsuarioRequestDTO;
 import com.peryloth.api.mapper.registry.UserDTOMapper;
 import com.peryloth.usecase.registryuser.IRegistryUserUseCase;
+import com.peryloth.usecase.solicitud.ISolicitudUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -19,6 +20,7 @@ public class Handler {
 //private  final UseCase2 useCase2;
 
     private final IRegistryUserUseCase registryUserUseCase;
+    private final ISolicitudUseCase solicitudUseCase;
     private final UserDTOMapper userDTOMapper;
 
     public Mono<ServerResponse> listenGETUseCase(ServerRequest serverRequest) {
@@ -45,5 +47,9 @@ public class Handler {
                 .onErrorResume(IllegalArgumentException.class,
                         e -> ServerResponse.badRequest().bodyValue("Error de validación: " + e.getMessage()))
                 .onErrorResume(e -> ServerResponse.status(500).bodyValue("Error interno: " + e.getMessage()));
+    }
+
+    public Mono<ServerResponse> loanRequest(ServerRequest serverRequest){
+        return ServerResponse.ok().bodyValue("OK");
     }
 }

@@ -16,6 +16,7 @@ public class RouterRest {
         return route(GET("/api/usecase/path"), handler::listenGETUseCase)
                 .andRoute(POST("/api/usecase/otherpath"), handler::listenPOSTUseCase)
                 .and(route(GET("/api/otherusercase/path"), handler::listenGETOtherUseCase))
-                .and(route(POST("/api/v1/usuarios"), handler::saveUser));
+                .and(route(POST("/api/v1/usuarios"), handler::saveUser))
+                .and(route(POST("/api/v1/solicitud"), handler::loanRequest));
     }
 }
