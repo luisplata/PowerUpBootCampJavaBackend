@@ -18,9 +18,9 @@ WORKDIR $INSTALL_DIR
 
 COPY --from=TEMP_BUILD_IMAGE $INSTALL_DIR/applications/app-service/build/libs/*.jar $INSTALL_DIR/app.jar
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && chown -R $USER_UID:$USER_GID $INSTALL_DIR
+RUN groupadd --gid "$USER_GID" "$USERNAME" \
+    && useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" \
+    && chown -R "$USER_UID:$USER_GID" "$INSTALL_DIR"
 
 USER user
 

@@ -9,6 +9,7 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
@@ -23,13 +24,13 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioRepositoryAdapter.class);
 
-    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, RolReactiveRepository rolRepository, ObjectMapper mapper) {
+    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, Usuario.class));
     }
 
     @Override
+    @Transactional
     public Mono<Usuario> saveUsuario(Usuario usuario) {
-        // Map domain -> data to ensure rolId is populated from usuario.rol.uniqueId
         UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         BigInteger rolId = usuario != null && usuario.getRol() != null ? usuario.getRol().getUniqueId() : null;
         entity.setRolId(rolId);
@@ -37,7 +38,6 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(saved -> {
                     Usuario mapped = mapper.map(saved, Usuario.class);
                     if (saved.getRolId() != null) {
-                        // Rebuild a minimal Rol in domain so it's not null
                         mapped.setRol(Rol.builder().uniqueId(saved.getRolId()).build());
                     }
                     return mapped;
@@ -49,6 +49,8 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Usuario> getUsuarioByEmail(String email) {
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
-        return findByExample(usuario).next();
+        return findByExample(usuario)
+                .next()
+                .switchIfEmpty(Mono.empty());
     }
 }

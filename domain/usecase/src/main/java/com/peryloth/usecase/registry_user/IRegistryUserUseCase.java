@@ -1,9 +1,9 @@
-package com.peryloth.usecase.registryuser;
+package com.peryloth.usecase.registry_user;
 
 import com.peryloth.model.usuario.Usuario;
 import reactor.core.publisher.Mono;
 
 public interface IRegistryUserUseCase {
 
-    public Mono<Void> RegistryUser(Usuario usuario);
+    Mono<Usuario> registryUser(Usuario usuario);
 }
