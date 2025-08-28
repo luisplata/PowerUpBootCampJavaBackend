@@ -23,18 +23,24 @@ public class RolRepositoryAdapter extends ReactiveAdapterOperations<
     private static final Logger log = LoggerFactory.getLogger(RolRepositoryAdapter.class);
 
     private final RolReactiveRepository rolRepository;
-    private final ObjectMapper mapper;
+    private final ObjectMapper mapperRol;
 
     public RolRepositoryAdapter(RolReactiveRepository rolRepository, ObjectMapper mapper) {
         super(rolRepository, mapper, d -> mapper.map(d, Rol.class));
         this.rolRepository = rolRepository;
-        this.mapper = mapper;
+        this.mapperRol = mapper;
     }
 
     @Override
     public Mono<Rol> getRolById(BigInteger id) {
+        if (rolRepository == null) {
+            return Mono.error(new IllegalStateException("RolReactiveRepository no inicializado"));
+        }
+
         return rolRepository.findById(id)
-                .map(rolEntity -> mapper.map(rolEntity, Rol.class))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Rol no encontrado con id=" + id)));
+                .map(rolEntity -> mapperRol.map(rolEntity, Rol.class))
+                .switchIfEmpty(Mono.error(
+                        new IllegalArgumentException("Rol no encontrado con id=" + id)
+                ));
     }
 }

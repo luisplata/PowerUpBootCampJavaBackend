@@ -1,4 +1,4 @@
-package com.peryloth.api.DTO.registry;
+package com.peryloth.api.dto.registry;
 
 public record UsuarioResponseDTO(
         String idUsuario,

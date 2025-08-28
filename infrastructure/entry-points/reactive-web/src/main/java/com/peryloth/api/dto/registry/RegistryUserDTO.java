@@ -1,4 +1,4 @@
-package com.peryloth.api.DTO.registry;
+package com.peryloth.api.dto.registry;
 
 import java.math.BigInteger;
 import java.time.LocalDate;

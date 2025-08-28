@@ -1,7 +1,7 @@
-package com.peryloth.usecase.registryuser.commandQueue;
+package com.peryloth.usecase.registry_user.command_queue;
 
 import com.peryloth.model.usuario.Usuario;
-import com.peryloth.usecase.registryuser.commandQueue.validations.UsuarioValidation;
+import com.peryloth.usecase.registry_user.command_queue.validations.UsuarioValidation;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
