@@ -1,13 +1,16 @@
 package com.peryloth.api;
 
+import com.peryloth.api.dto.registry.UserValidationRequest;
 import com.peryloth.api.dto.registry.UsuarioRequestDTO;
 import com.peryloth.api.mapper.registry.UserDTOMapper;
 import com.peryloth.usecase.registry_user.IRegistryUserUseCase;
+import com.peryloth.usecase.validationclient.IValidationClientUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -19,6 +22,7 @@ public class Handler {
 
     private final IRegistryUserUseCase registryUserUseCase;
     private final UserDTOMapper userDTOMapper;
+    private final IValidationClientUseCase validationClientUseCase;
 
     @Operation(
             summary = "Registrar un nuevo usuario",
@@ -42,5 +46,23 @@ public class Handler {
                 .onErrorResume(IllegalArgumentException.class,
                         e -> ServerResponse.badRequest().bodyValue("Error de validación: " + e.getMessage()))
                 .onErrorResume(e -> ServerResponse.status(500).bodyValue("Error interno: " + e.getMessage()));
+    }
+
+    public Mono<ServerResponse> validateUser(ServerRequest request) {
+
+        return request.bodyToMono(UserValidationRequest.class)
+                .flatMap(usuarioRequest ->
+                        validationClientUseCase.IsUserValid(request.headers().firstHeader("Authorization"), usuarioRequest.getId(), usuarioRequest.getEmail())
+                                .flatMap(isValid -> {
+                                    if (Boolean.TRUE.equals(isValid)) {
+                                        return ServerResponse.ok()
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .bodyValue(true);
+                                    } else {
+                                        return ServerResponse.status(401)
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .bodyValue(false);
+                                    }
+                                }));
     }
 }

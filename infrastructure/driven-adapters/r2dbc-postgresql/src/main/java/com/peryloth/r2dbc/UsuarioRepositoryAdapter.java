@@ -53,4 +53,14 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                 .next()
                 .switchIfEmpty(Mono.empty());
     }
+
+    @Override
+    public Mono<Usuario> getUsuarioByEmailAndDocument(String email, String document) {
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        usuario.setDocumentoIdentidad(document);
+        return findByExample(usuario)
+                .next()
+                .switchIfEmpty(Mono.empty());
+    }
 }

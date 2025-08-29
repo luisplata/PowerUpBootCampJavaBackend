@@ -1,32 +1,33 @@
 services:
-  postgres:
+  postgres-hu1:
     image: postgres:16
     environment:
       POSTGRES_DB: perylothdb
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_hu1:/var/lib/postgresql/data
+    networks:
+      - bootcamp_network
 
-  app-service:
+  app-service-hu1:
     build:
       context: .
       dockerfile: deployment/Dockerfile
     depends_on:
-      - postgres
+      - postgres-hu1
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/perylothdb
-      SPRING_R2DBC_USERNAME: user
-      SPRING_R2DBC_PASSWORD: password
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: postgres-hu1
       POSTGRES_PORT: 5432
       POSTGRES_DB: perylothdb
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-    ports:
-      - "8080:8080"
+    networks:
+      - bootcamp_network
 
 volumes:
-  pg_data:
+  pg_data_hu1:
+
+networks:
+  bootcamp_network:
+    external: true

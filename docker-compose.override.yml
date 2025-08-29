@@ -1,0 +1,13 @@
+services:
+  postgres-hu1:
+    ports:
+      - "5433:5432"   # se expone en el host en 5433
+  app-service-hu1:
+    ports:
+      - "8081:8080"   # se expone en el host en 8081
+    environment:
+      POSTGRES_HOST: postgres-hu1
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: perylothdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
