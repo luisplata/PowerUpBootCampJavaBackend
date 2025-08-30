@@ -1,19 +1,17 @@
-package com.peryloth.usecase.registry_user;
+package com.peryloth.usecase.registryuser;
 
 import com.peryloth.model.rol.Rol;
 import com.peryloth.model.rol.gateways.RolRepository;
 import com.peryloth.model.usuario.Usuario;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
+import com.peryloth.usecase.registry_user.RegistryUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class RegistryUserUseCaseTest {
@@ -27,96 +25,110 @@ class RegistryUserUseCaseTest {
         usuarioRepository = mock(UsuarioRepository.class);
         rolRepository = mock(RolRepository.class);
         useCase = new RegistryUserUseCase(usuarioRepository, rolRepository);
+
+        // Valores por defecto para evitar NullPointer
+        when(usuarioRepository.getUsuarioByEmail(anyString())).thenReturn(Mono.empty());
+        when(rolRepository.getRolById(any())).thenReturn(Mono.just(new Rol(BigInteger.ONE, "USER", "USER")));
+        Usuario dummy = Usuario.builder()
+                .idUsuario(BigInteger.ONE)
+                .nombre("Test")
+                .apellido("User")
+                .email("test@correo.com")
+                .salarioBase(1000L)
+                .build();
+
+        when(usuarioRepository.saveUsuario(any())).thenReturn(Mono.just(dummy));
+    }
+
+    private Usuario buildValidUser() {
+        return Usuario.builder()
+                .nombre("Juan")
+                .apellido("Pérez")
+                .email("juan@test.com")
+                .salarioBase(2000000L)
+                .build();
     }
 
     @Test
-    void registryUser_conUsuarioValidoYRolExistente_guardaUsuario() {
-        // Arrange
-        Usuario usuario = Usuario.builder()
-                .idUsuario(BigInteger.TEN)
-                .nombre("Carlos")
-                .apellido("Pérez")
-                .email("carlos@example.com")
-                .salarioBase(3000L)
-                .build();
+    void shouldRegisterUserSuccessfully() {
+        Usuario usuario = buildValidUser();
+        Rol rol = new Rol(BigInteger.ONE, "USER", "USER");
 
-        Rol rol = new Rol(BigInteger.ONE, "ADMIN", "Administrador");
+        when(rolRepository.getRolById(BigInteger.ONE)).thenReturn(Mono.just(rol));
+        when(usuarioRepository.getUsuarioByEmail(usuario.getEmail())).thenReturn(Mono.empty());
+        when(usuarioRepository.saveUsuario(any(Usuario.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        when(usuarioRepository.getUsuarioByEmail(usuario.getEmail()))
-                .thenReturn(Mono.empty());
-        when(rolRepository.getRolById(any()))
-                .thenReturn(Mono.just(rol));
-        when(usuarioRepository.saveUsuario(any()))
-                .thenAnswer(invocation -> {
-                    Usuario u = invocation.getArgument(0);
-                    // Asegurarte que el usuario tenga el rol asignado
-                    u.setRol(rol);
-                    return Mono.just(u);
-                });
-
-        // Act & Assert
         StepVerifier.create(useCase.registryUser(usuario))
-                .expectNextMatches(u -> u.getNombre().equals("Carlos") &&
-                        u.getRol() != null &&
-                        u.getRol().getNombre().equals("ADMIN"))
+                .expectNextMatches(u -> u.getRol().equals(rol))
                 .verifyComplete();
 
-        // Verificar que el usuario se guardó
-        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
-        verify(usuarioRepository).saveUsuario(captor.capture());
-        Usuario usuarioGuardado = captor.getValue();
-        assertEquals("Carlos", usuarioGuardado.getNombre());
-        assertEquals("ADMIN", usuarioGuardado.getRol().getNombre());
+        verify(usuarioRepository).saveUsuario(any(Usuario.class));
     }
 
+    @Test
+    void shouldFailWhenNombreIsEmpty() {
+        Usuario usuario = buildValidUser().toBuilder().nombre("").build();
+
+        StepVerifier.create(useCase.registryUser(usuario))
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().contains("nombre"))
+                .verify();
+    }
 
     @Test
-    void registryUser_conRolNoExistente_error() {
-        // Arrange
-        Usuario usuario = Usuario.builder()
-                .idUsuario(BigInteger.TEN)
-                .nombre("Ana")
-                .apellido("López")
-                .email("ana@example.com")
-                .salarioBase(2500L)
-                .build();
+    void shouldFailWhenApellidoIsNull() {
+        Usuario usuario = buildValidUser().toBuilder().apellido(null).build();
+
+        StepVerifier.create(useCase.registryUser(usuario))
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().contains("apellido"))
+                .verify();
+    }
+
+    @Test
+    void shouldFailWhenEmailInvalid() {
+        Usuario usuario = buildValidUser().toBuilder().email("invalidEmail").build();
+
+        StepVerifier.create(useCase.registryUser(usuario))
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().contains("formato de email"))
+                .verify();
+    }
+
+    @Test
+    void shouldFailWhenEmailAlreadyExists() {
+        Usuario usuario = buildValidUser();
 
         when(usuarioRepository.getUsuarioByEmail(usuario.getEmail()))
-                .thenReturn(Mono.empty());
-        when(rolRepository.getRolById(any()))
-                .thenReturn(Mono.empty()); // simulamos rol inexistente
+                .thenReturn(Mono.just(usuario));
 
-        // Act & Assert
         StepVerifier.create(useCase.registryUser(usuario))
-                .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
-                        throwable.getMessage().equals("Rol fijo no encontrado"))
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().contains("Correo ya existe"))
                 .verify();
-
-        verify(usuarioRepository, never()).saveUsuario(any());
     }
 
     @Test
-    void registryUser_conUsuarioInvalido_porValidacionFalla() {
-        // Arrange
-        Usuario usuario = Usuario.builder()
-                .idUsuario(BigInteger.TEN)
-                .nombre("Ana")
-                .apellido("López")
-                .email("correo-invalido")
-                .salarioBase(2500L)
-                .build();
+    void shouldFailWhenSalarioBaseIsInvalid() {
+        Usuario usuario = buildValidUser().toBuilder().salarioBase(0L).build();
 
-        // Mock obligatorio para evitar NullPointerException
-        when(usuarioRepository.getUsuarioByEmail(anyString()))
-                .thenReturn(Mono.empty());
-        when(rolRepository.getRolById(any()))
-                .thenReturn(Mono.just(new Rol(BigInteger.ONE, "ADMIN", "Administrador")));
-
-        // Act & Assert
         StepVerifier.create(useCase.registryUser(usuario))
-                .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException)
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().contains("salario_base"))
                 .verify();
+    }
 
-        verify(usuarioRepository, never()).saveUsuario(any());
+    @Test
+    void shouldFailWhenRolNotFound() {
+        Usuario usuario = buildValidUser();
+
+        when(usuarioRepository.getUsuarioByEmail(usuario.getEmail())).thenReturn(Mono.empty());
+        when(rolRepository.getRolById(BigInteger.ONE)).thenReturn(Mono.empty());
+
+        StepVerifier.create(useCase.registryUser(usuario))
+                .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
+                        ex.getMessage().equals("Rol fijo no encontrado"))
+                .verify();
     }
 }
