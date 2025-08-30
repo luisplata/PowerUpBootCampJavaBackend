@@ -16,8 +16,8 @@ import java.math.BigInteger;
 
 @Repository
 public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
-        Usuario/* change for domain model */,
-        UsuarioEntity/* change for adapter model */,
+        Usuario,
+        UsuarioEntity,
         BigInteger,
         UsuarioReactiveRepository
         > implements UsuarioRepository {
@@ -31,10 +31,15 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     @Override
     @Transactional
     public Mono<Usuario> saveUsuario(Usuario usuario) {
-        UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         BigInteger rolId = usuario != null && usuario.getRol() != null ? usuario.getRol().getUniqueId() : null;
+        log.info("Guardando usuario con email={} y rolId={}",
+                usuario != null ? usuario.getEmail() : "null", rolId);
+
+        UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         entity.setRolId(rolId);
+
         return repository.save(entity)
+                .doOnNext(saved -> log.debug("Entidad persistida: {}", saved))
                 .map(saved -> {
                     Usuario mapped = mapper.map(saved, Usuario.class);
                     if (saved.getRolId() != null) {
@@ -42,25 +47,42 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                     }
                     return mapped;
                 })
-                .doOnNext(u -> log.info("Usuario guardado con id={}", u.getIdUsuario()));
+                .doOnNext(u -> log.info("Usuario guardado con id={}", u.getIdUsuario()))
+                .doOnError(e -> log.error("Error al guardar usuario: {}", e.getMessage(), e));
     }
 
     @Override
     public Mono<Usuario> getUsuarioByEmail(String email) {
+        log.info("Buscando usuario por email={}", email);
+
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
+
         return findByExample(usuario)
+                .doOnNext(u -> log.debug("Coincidencia encontrada: {}", u))
                 .next()
-                .switchIfEmpty(Mono.empty());
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró usuario con email={}", email);
+                    return Mono.empty();
+                }))
+                .doOnError(e -> log.error("Error al buscar usuario por email={}: {}", email, e.getMessage(), e));
     }
 
     @Override
     public Mono<Usuario> getUsuarioByEmailAndDocument(String email, String document) {
+        log.info("Buscando usuario por email={} y documento={}", email, document);
+
         Usuario usuario = new Usuario();
         usuario.setEmail(email);
         usuario.setDocumentoIdentidad(document);
+
         return findByExample(usuario)
+                .doOnNext(u -> log.debug("Coincidencia encontrada: {}", u))
                 .next()
-                .switchIfEmpty(Mono.empty());
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró usuario con email={} y documento={}", email, document);
+                    return Mono.empty();
+                }))
+                .doOnError(e -> log.error("Error al buscar usuario por email={} y documento={}: {}", email, document, e.getMessage(), e));
     }
 }

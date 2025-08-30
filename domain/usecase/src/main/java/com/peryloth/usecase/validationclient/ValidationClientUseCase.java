@@ -10,14 +10,13 @@ public class ValidationClientUseCase implements IValidationClientUseCase {
     private final IValidateJwt validateJwt;
 
     @Override
-    public Mono<Boolean> IsUserValid(String jwt, String document, String email) {
+    public Mono<Boolean> isUserValid(String jwt, String document, String email) {
         return validateJwt.validate(jwt)
                 .flatMap(isValid -> {
                     if (Boolean.TRUE.equals(isValid)) {
                         return usuarioRepository.getUsuarioByEmailAndDocument(email, document)
                                 .flatMap(usuario ->
                                         {
-                                            System.out.printf("Documento de identidad del usuario: %s%n con comparacion con: %s%n", usuario.getDocumentoIdentidad(), document);
                                             return Mono.just(usuario.getDocumentoIdentidad().equalsIgnoreCase(document));
                                         }
                                 ).defaultIfEmpty(false);

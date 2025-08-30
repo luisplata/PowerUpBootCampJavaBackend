@@ -36,7 +36,7 @@ class ValidationClientUseCaseTest {
         when(usuarioRepository.getUsuarioByEmailAndDocument(email, document)).thenReturn(Mono.just(usuario));
 
         // Act & Assert
-        StepVerifier.create(useCase.IsUserValid(jwt, document, email))
+        StepVerifier.create(useCase.isUserValid(jwt, document, email))
                 .expectNext(true)
                 .verifyComplete();
 
@@ -56,7 +56,7 @@ class ValidationClientUseCaseTest {
         when(validateJwt.validate(jwt)).thenReturn(Mono.just(true));
         when(usuarioRepository.getUsuarioByEmailAndDocument(email, document)).thenReturn(Mono.just(usuario));
 
-        StepVerifier.create(useCase.IsUserValid(jwt, document, email))
+        StepVerifier.create(useCase.isUserValid(jwt, document, email))
                 .expectNext(false)
                 .verifyComplete();
     }
@@ -70,7 +70,7 @@ class ValidationClientUseCaseTest {
         when(validateJwt.validate(jwt)).thenReturn(Mono.just(true));
         when(usuarioRepository.getUsuarioByEmailAndDocument(email, document)).thenReturn(Mono.empty());
 
-        StepVerifier.create(useCase.IsUserValid(jwt, document, email))
+        StepVerifier.create(useCase.isUserValid(jwt, document, email))
                 .expectNext(false)
                 .verifyComplete();
     }
@@ -83,7 +83,7 @@ class ValidationClientUseCaseTest {
 
         when(validateJwt.validate(jwt)).thenReturn(Mono.just(false));
 
-        StepVerifier.create(useCase.IsUserValid(jwt, document, email))
+        StepVerifier.create(useCase.isUserValid(jwt, document, email))
                 .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
                         throwable.getMessage().equals("JWT no es válido"))
                 .verify();
