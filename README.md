@@ -8,12 +8,20 @@
 
 ## TODO
 
-- Terminar el flujo de escucha y renvio de informacion por colas.
-- Revisar la covertura: Como se mira el porcentaje
+- Mejorar la covertura
+- Aplicar mas test unitarios
 
 ### examples
 
-#### SQS
-```
-aws --endpoint-url=http://localhost:4566 --profile localstack sqs send-message --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-request-queue --message-body '{"correlationId":"test2","replyToQueue":"http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-response-queue","timestamp":"2025-08-25T18:00:00Z","payload":{"action":"QUERY_USER_BY_EMAIL","email":"test@example.com"}}' --message-attributes '{"correlationId":{"DataType":"String","StringValue":"test2"},"replyToQueue":{"DataType":"String","StringValue":"http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-response-queue"}}'
+Request Postman
+```aiignore
+{
+  "email": "{{$randomEmail}}",
+  "nombre":"{{$randomFirstName}}",
+  "apellido":"{{$randomLastName}}",
+  "documentoIdentidad": "{{$randomPhoneNumber}}",
+  "direccion":"{{$randomDirectoryPath}}",
+  "telefono": "{{$randomPhoneNumber}}",
+  "salarioBase":1
+}
 ```
