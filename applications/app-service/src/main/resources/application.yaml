@@ -7,14 +7,9 @@ spring:
     add-properties: false
   profiles:
     include: null
-  datasource:
-    url: "jdbc:h2:mem:test"
-    username: "sa"
-    password: "pass"
-    driverClassName: "org.h2.Driver"
 adapters:
   r2dbc:
-    host: "${POSTGRES_HOST:postgres}"
+    host: "${POSTGRES_HOST:postgres-hu1}"
     port: "${POSTGRES_PORT:5432}"
     database: "${POSTGRES_DB:perylothdb}"
     schema: "public"
@@ -31,9 +26,3 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
-adapter:
-  sqs:
-    region: "us-east-1"
-    requestQueueUrl: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-request-queue"
-    responseQueueUrl: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/usuario-response-queue"
-    endpoint: "http://localhost:4566" # LocalStack

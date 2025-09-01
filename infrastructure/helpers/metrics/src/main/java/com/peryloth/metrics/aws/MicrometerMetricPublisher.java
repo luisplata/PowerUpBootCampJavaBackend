@@ -37,7 +37,7 @@ public class MicrometerMetricPublisher implements MetricPublisher {
 
     @Override
     public void close() {
-
+        // document why this method is empty
     }
 
     private List<Tag> buildTags(MetricCollection metricCollection) {

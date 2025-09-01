@@ -37,10 +37,16 @@ public class RolRepositoryAdapter extends ReactiveAdapterOperations<
             return Mono.error(new IllegalStateException("RolReactiveRepository no inicializado"));
         }
 
+        log.info("Buscando Rol con id={}", id);
+
         return rolRepository.findById(id)
+                .doOnNext(rolEntity -> log.debug("Entidad encontrada: {}", rolEntity))
                 .map(rolEntity -> mapperRol.map(rolEntity, Rol.class))
-                .switchIfEmpty(Mono.error(
-                        new IllegalArgumentException("Rol no encontrado con id=" + id)
-                ));
+                .doOnNext(rol -> log.info("Rol mapeado correctamente: {}", rol))
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró Rol con id={}", id);
+                    return Mono.error(new IllegalArgumentException("Rol no encontrado con id=" + id));
+                }))
+                .doOnError(error -> log.error("Error al obtener Rol con id={}: {}", id, error.getMessage(), error));
     }
 }
