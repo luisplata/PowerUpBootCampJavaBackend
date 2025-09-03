@@ -70,6 +70,7 @@ public class RouterRest {
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/api/v1/usuarios"), handler::saveUser)
-                .andRoute(POST("/api/v1/users/validate"), handler::validateUser);
+                .andRoute(POST("/api/v1/users/validate"), handler::validateUser)
+                .andRoute(POST("/api/v1/login"), handler::login);
     }
 }

@@ -47,6 +47,10 @@ public record UsuarioRequestDTO(
                 example = "2500000",
                 minimum = "0"
         )
-        Long salarioBase
+        Long salarioBase,
+        @Schema(
+                description = "Contraseña en texto plano",
+                example = "miPassword123")
+        String password
 ) {
 }

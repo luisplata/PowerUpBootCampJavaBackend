@@ -7,4 +7,5 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
     implementation 'org.slf4j:slf4j-api:2.0.12'
     implementation 'ch.qos.logback:logback-classic:1.5.13'
+    implementation 'org.springframework.security:spring-security-crypto'
 }

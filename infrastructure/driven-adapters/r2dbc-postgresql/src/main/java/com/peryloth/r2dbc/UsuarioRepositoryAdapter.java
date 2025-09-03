@@ -37,6 +37,7 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
 
         UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         entity.setRolId(rolId);
+        String passwordHash = passwordEncoder.encode(dto.password());
 
         return repository.save(entity)
                 .doOnNext(saved -> log.debug("Entidad persistida: {}", saved))

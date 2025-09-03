@@ -2,6 +2,7 @@ package com.peryloth.usecase.registry_user;
 
 import com.peryloth.model.rol.gateways.RolRepository;
 import com.peryloth.model.usuario.Usuario;
+import com.peryloth.model.usuario.gateways.PasswordEncoder;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
 import com.peryloth.usecase.registry_user.command_queue.UsuarioValidationQueue;
 import com.peryloth.usecase.registry_user.command_queue.validations.ApellidoValidation;
@@ -18,6 +19,7 @@ import java.math.BigInteger;
 public class RegistryUserUseCase implements IRegistryUserUseCase {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Mono<Usuario> registryUser(Usuario usuario) {
@@ -28,6 +30,9 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
                 .addValidation(new SalarioBaseValidation());
 
         BigInteger rolIdFijo = BigInteger.ONE;
+
+        //TODO check password convert
+        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
 
         return validationQueue.validate(usuario)
                 .then(rolRepository.getRolById(rolIdFijo)
