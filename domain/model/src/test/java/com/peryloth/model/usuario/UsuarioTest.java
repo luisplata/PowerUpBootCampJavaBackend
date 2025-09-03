@@ -29,7 +29,10 @@ class UsuarioTest {
                 documento,
                 telefono,
                 rol,
-                salario
+                salario,
+                "asas",
+                0,
+                null
         );
 
         assertNotNull(usuario);

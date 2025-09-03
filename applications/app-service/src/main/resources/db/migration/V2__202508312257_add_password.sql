@@ -1,2 +1,2 @@
-ALTER TABLE usuarios
+ALTER TABLE usuario
 ADD COLUMN password_hash VARCHAR(255) NOT NULL;

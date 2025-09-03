@@ -3,6 +3,7 @@ package com.peryloth.usecase.registryuser;
 import com.peryloth.model.rol.Rol;
 import com.peryloth.model.rol.gateways.RolRepository;
 import com.peryloth.model.usuario.Usuario;
+import com.peryloth.model.usuario.gateways.PasswordEncoder;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
 import com.peryloth.usecase.registry_user.RegistryUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,10 @@ class RegistryUserUseCaseTest {
     void setUp() {
         usuarioRepository = mock(UsuarioRepository.class);
         rolRepository = mock(RolRepository.class);
-        useCase = new RegistryUserUseCase(usuarioRepository, rolRepository);
+        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+        useCase = new RegistryUserUseCase(usuarioRepository, rolRepository, passwordEncoder);
 
         // Valores por defecto para evitar NullPointer
         when(usuarioRepository.getUsuarioByEmail(anyString())).thenReturn(Mono.empty());

@@ -32,6 +32,7 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
         BigInteger rolIdFijo = BigInteger.ONE;
 
         //TODO check password convert
+        System.out.println("Password before encode: " + usuario.getPasswordHash());
         usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
 
         return validationQueue.validate(usuario)

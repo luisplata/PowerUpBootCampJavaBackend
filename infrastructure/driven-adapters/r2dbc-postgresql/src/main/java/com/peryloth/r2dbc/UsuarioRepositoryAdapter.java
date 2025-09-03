@@ -2,6 +2,7 @@ package com.peryloth.r2dbc;
 
 import com.peryloth.model.rol.Rol;
 import com.peryloth.model.usuario.Usuario;
+import com.peryloth.model.usuario.gateways.PasswordEncoder;
 import com.peryloth.model.usuario.gateways.UsuarioRepository;
 import com.peryloth.r2dbc.entity.UsuarioEntity;
 import com.peryloth.r2dbc.helper.ReactiveAdapterOperations;
@@ -23,9 +24,11 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
         > implements UsuarioRepository {
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioRepositoryAdapter.class);
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper) {
+    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
         super(repository, mapper, d -> mapper.map(d, Usuario.class));
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -35,9 +38,10 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
         log.info("Guardando usuario con email={} y rolId={}",
                 usuario != null ? usuario.getEmail() : "null", rolId);
 
+        assert usuario != null;
+        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
         UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         entity.setRolId(rolId);
-        String passwordHash = passwordEncoder.encode(dto.password());
 
         return repository.save(entity)
                 .doOnNext(saved -> log.debug("Entidad persistida: {}", saved))

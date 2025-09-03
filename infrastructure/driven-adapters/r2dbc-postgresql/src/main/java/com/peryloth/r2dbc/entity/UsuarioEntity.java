@@ -32,4 +32,7 @@ public class UsuarioEntity {
 
     @Column("salario_base")
     private Long salarioBase;
+
+    @Column("password_hash")
+    private String passwordHash;
 }

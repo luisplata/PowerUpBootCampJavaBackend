@@ -8,8 +8,7 @@
 
 ## TODO
 
-- Mejorar la covertura
-- Aplicar mas test unitarios
+- Capturar las excepciones y retornar respuestas personalizadas.
 
 ### examples
 
