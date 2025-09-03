@@ -24,11 +24,9 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
         > implements UsuarioRepository {
 
     private static final Logger log = LoggerFactory.getLogger(UsuarioRepositoryAdapter.class);
-    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper, PasswordEncoder passwordEncoder) {
+    public UsuarioRepositoryAdapter(UsuarioReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, Usuario.class));
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -39,7 +37,6 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                 usuario != null ? usuario.getEmail() : "null", rolId);
 
         assert usuario != null;
-        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
         UsuarioEntity entity = mapper.map(usuario, UsuarioEntity.class);
         entity.setRolId(rolId);
 
@@ -60,12 +57,18 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Usuario> getUsuarioByEmail(String email) {
         log.info("Buscando usuario por email={}", email);
 
-        Usuario usuario = new Usuario();
-        usuario.setEmail(email);
+        UsuarioEntity probe = new UsuarioEntity();
+        probe.setEmail(email);
 
-        return findByExample(usuario)
-                .doOnNext(u -> log.debug("Coincidencia encontrada: {}", u))
+        return findByExampleEntity(probe) // ✅ usamos entity como probe
                 .next()
+                .map(entity -> {
+                    Usuario mapped = mapper.map(entity, Usuario.class);
+                    if (entity.getRolId() != null) {
+                        mapped.setRol(Rol.builder().uniqueId(entity.getRolId()).build());
+                    }
+                    return mapped;
+                })
                 .switchIfEmpty(Mono.defer(() -> {
                     log.warn("No se encontró usuario con email={}", email);
                     return Mono.empty();
@@ -77,13 +80,19 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Usuario> getUsuarioByEmailAndDocument(String email, String document) {
         log.info("Buscando usuario por email={} y documento={}", email, document);
 
-        Usuario usuario = new Usuario();
-        usuario.setEmail(email);
-        usuario.setDocumentoIdentidad(document);
+        UsuarioEntity probe = new UsuarioEntity();
+        probe.setEmail(email);
+        probe.setDocumentoIdentidad(document);
 
-        return findByExample(usuario)
-                .doOnNext(u -> log.debug("Coincidencia encontrada: {}", u))
+        return findByExampleEntity(probe) // ✅ usamos entity como probe
                 .next()
+                .map(entity -> {
+                    Usuario mapped = mapper.map(entity, Usuario.class);
+                    if (entity.getRolId() != null) {
+                        mapped.setRol(Rol.builder().uniqueId(entity.getRolId()).build());
+                    }
+                    return mapped;
+                })
                 .switchIfEmpty(Mono.defer(() -> {
                     log.warn("No se encontró usuario con email={} y documento={}", email, document);
                     return Mono.empty();

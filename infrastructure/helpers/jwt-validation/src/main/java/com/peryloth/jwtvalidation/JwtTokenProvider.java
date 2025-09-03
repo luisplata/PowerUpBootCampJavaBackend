@@ -11,9 +11,7 @@ import java.security.Key;
 
 public class JwtTokenProvider {
 
-    // ⚠️ En real lo sacamos del application.yml
-    private static final String SECRET_KEY = "bootcamp_java_super_secure_secret_key_123456";
-    private static final Key KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    private static final Key KEY = Keys.hmacShaKeyFor(JwtProperties.SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     public static Mono<Boolean> validateTokenReactive(String token) {

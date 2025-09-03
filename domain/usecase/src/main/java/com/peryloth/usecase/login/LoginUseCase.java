@@ -13,13 +13,17 @@ public class LoginUseCase implements ILogin {
 
     @Override
     public Mono<String> login(String email, String password) {
+        System.out.println("Login - password antes de buscar usuario: " + password);
         return usuarioRepository.getUsuarioByEmail(email)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Usuario no encontrado")))
                 .flatMap(usuario -> {
+                    System.out.println("Login - email: " + usuario.getEmail());
+                    System.out.println("Login - password enviado: " + password);
+                    System.out.println("Login - password hash en DB: " + usuario.getPasswordHash());
                     if (passwordEncoder.matches(password, usuario.getPasswordHash())) {
-                        return Mono.just(jwtTokenProvider.createToken(usuario.getEmail()));
+                        return jwtTokenProvider.createToken(usuario.getEmail());
                     }
                     return Mono.error(new IllegalArgumentException("Credenciales inválidas"));
-                }).flatMap(token -> token);
+                });
     }
 }

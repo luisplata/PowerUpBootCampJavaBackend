@@ -5,5 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface IRegistryUserUseCase {
 
-    Mono<Usuario> registryUser(Usuario usuario);
+    Mono<Usuario> registryUserAdmin(Usuario usuario);
+    Mono<Usuario> registryNormalUser(Usuario usuario);
 }

@@ -63,7 +63,7 @@ class RegistryUserUseCaseTest {
         when(usuarioRepository.saveUsuario(any(Usuario.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectNextMatches(u -> u.getRol().equals(rol))
                 .verifyComplete();
 
@@ -74,7 +74,7 @@ class RegistryUserUseCaseTest {
     void shouldFailWhenNombreIsEmpty() {
         Usuario usuario = buildValidUser().toBuilder().nombre("").build();
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().contains("nombre"))
                 .verify();
@@ -84,7 +84,7 @@ class RegistryUserUseCaseTest {
     void shouldFailWhenApellidoIsNull() {
         Usuario usuario = buildValidUser().toBuilder().apellido(null).build();
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().contains("apellido"))
                 .verify();
@@ -94,7 +94,7 @@ class RegistryUserUseCaseTest {
     void shouldFailWhenEmailInvalid() {
         Usuario usuario = buildValidUser().toBuilder().email("invalidEmail").build();
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().contains("formato de email"))
                 .verify();
@@ -107,7 +107,7 @@ class RegistryUserUseCaseTest {
         when(usuarioRepository.getUsuarioByEmail(usuario.getEmail()))
                 .thenReturn(Mono.just(usuario));
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().contains("Correo ya existe"))
                 .verify();
@@ -117,7 +117,7 @@ class RegistryUserUseCaseTest {
     void shouldFailWhenSalarioBaseIsInvalid() {
         Usuario usuario = buildValidUser().toBuilder().salarioBase(0L).build();
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().contains("salario_base"))
                 .verify();
@@ -130,7 +130,7 @@ class RegistryUserUseCaseTest {
         when(usuarioRepository.getUsuarioByEmail(usuario.getEmail())).thenReturn(Mono.empty());
         when(rolRepository.getRolById(BigInteger.ONE)).thenReturn(Mono.empty());
 
-        StepVerifier.create(useCase.registryUser(usuario))
+        StepVerifier.create(useCase.registryUserAdmin(usuario))
                 .expectErrorMatches(ex -> ex instanceof IllegalArgumentException &&
                         ex.getMessage().equals("Rol fijo no encontrado"))
                 .verify();

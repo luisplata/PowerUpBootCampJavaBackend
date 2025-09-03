@@ -16,9 +16,7 @@ public class ValidationClientUseCase implements IValidationClientUseCase {
                     if (Boolean.TRUE.equals(isValid)) {
                         return usuarioRepository.getUsuarioByEmailAndDocument(email, document)
                                 .flatMap(usuario ->
-                                        {
-                                            return Mono.just(usuario.getDocumentoIdentidad().equalsIgnoreCase(document));
-                                        }
+                                        Mono.just(usuario.getDocumentoIdentidad().equalsIgnoreCase(document))
                                 ).defaultIfEmpty(false);
                     } else {
                         return Mono.error(new IllegalArgumentException("JWT no es válido"));

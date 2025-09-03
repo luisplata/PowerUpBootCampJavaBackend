@@ -22,17 +22,40 @@ public class RegistryUserUseCase implements IRegistryUserUseCase {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Mono<Usuario> registryUser(Usuario usuario) {
+    public Mono<Usuario> registryUserAdmin(Usuario usuario) {
+        UsuarioValidationQueue validationQueue = new UsuarioValidationQueue()
+                .addValidation(new NombreValidation())
+                .addValidation(new ApellidoValidation())
+                .addValidation(new EmailValidation(usuarioRepository))
+                .addValidation(new SalarioBaseValidation());
+        //TODO falta agregar validacion de documento de identidad que no exista ya en db
+
+        BigInteger rolIdFijo = BigInteger.ONE;
+
+        System.out.println("Registro Admin - password antes de encriptar: " + usuario.getPasswordHash());
+        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
+        System.out.println("Registro Admin - password despues de encriptar: " + usuario.getPasswordHash());
+
+        return validationQueue.validate(usuario)
+                .then(rolRepository.getRolById(rolIdFijo)
+                        .switchIfEmpty(Mono.error(new IllegalArgumentException("Rol fijo no encontrado")))
+                        .flatMap(rol -> {
+                            Usuario usuarioConRol = usuario.toBuilder().rol(rol).build();
+                            return usuarioRepository.saveUsuario(usuarioConRol);
+                        }).log()
+                );
+    }
+
+    @Override
+    public Mono<Usuario> registryNormalUser(Usuario usuario) {
         UsuarioValidationQueue validationQueue = new UsuarioValidationQueue()
                 .addValidation(new NombreValidation())
                 .addValidation(new ApellidoValidation())
                 .addValidation(new EmailValidation(usuarioRepository))
                 .addValidation(new SalarioBaseValidation());
 
-        BigInteger rolIdFijo = BigInteger.ONE;
+        BigInteger rolIdFijo = BigInteger.TWO;
 
-        //TODO check password convert
-        System.out.println("Password before encode: " + usuario.getPasswordHash());
         usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
 
         return validationQueue.validate(usuario)

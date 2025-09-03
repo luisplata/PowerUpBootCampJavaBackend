@@ -13,11 +13,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class RouterRest {
+
+    private final AuthFilter authFilter;
+
+    public RouterRest(AuthFilter authFilter) {
+        this.authFilter = authFilter;
+    }
 
     @Bean
     @RouterOperations({
@@ -71,6 +77,13 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/api/v1/usuarios"), handler::saveUser)
                 .andRoute(POST("/api/v1/users/validate"), handler::validateUser)
-                .andRoute(POST("/api/v1/login"), handler::login);
+                .andRoute(POST("/api/v1/login"), handler::login)
+                .andNest(path("/api/v1/usuarios/admin"),
+                        route(POST(""), handler::saveAdmin)
+                ).andNest(path("/api/v1/solicitud"),
+                        route(GET(""), handler::getSolicitudes)
+                                .filter(authFilter)
+                );
+
     }
 }

@@ -45,12 +45,30 @@ public class Handler {
                                     schema = @Schema(implementation = String.class)))
             }
     )
+
+    public Mono<ServerResponse> saveAdmin(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(UsuarioRequestDTO.class)
+                .doOnNext(dto -> log.debug("Payload recibido: {}", dto))
+                .flatMap(dto -> registryUserUseCase.registryUserAdmin(userDTOMapper.mapToEntity(dto))
+                        .doOnSuccess(v -> log.info("Usuario registrado correctamente: {}", dto.email()))
+                        .then(ServerResponse.ok().bodyValue("Usuario guardado correctamente"))
+                )
+                .onErrorResume(IllegalArgumentException.class, e -> {
+                    log.warn("Error de validación al registrar usuario: {}", e.getMessage());
+                    return ServerResponse.badRequest().bodyValue("Error de validación: " + e.getMessage());
+                })
+                .onErrorResume(e -> {
+                    log.error("Error interno al registrar usuario", e);
+                    return ServerResponse.status(500).bodyValue("Error interno: " + e.getMessage());
+                });
+    }
+
     public Mono<ServerResponse> saveUser(ServerRequest serverRequest) {
         log.info("Iniciando proceso de registro de usuario");
 
         return serverRequest.bodyToMono(UsuarioRequestDTO.class)
                 .doOnNext(dto -> log.debug("Payload recibido: {}", dto))
-                .flatMap(dto -> registryUserUseCase.registryUser(userDTOMapper.mapToEntity(dto))
+                .flatMap(dto -> registryUserUseCase.registryNormalUser(userDTOMapper.mapToEntity(dto))
                         .doOnSuccess(v -> log.info("Usuario registrado correctamente: {}", dto.email()))
                         .then(ServerResponse.ok().bodyValue("Usuario guardado correctamente"))
                 )
@@ -115,5 +133,9 @@ public class Handler {
                     return ServerResponse.status(500)
                             .bodyValue(Map.of("error", "Error interno: " + e.getMessage()));
                 });
+    }
+
+    public Mono<ServerResponse> getSolicitudes(ServerRequest request) {
+        return ServerResponse.ok().bodyValue("Aquí van las solicitudes");
     }
 }

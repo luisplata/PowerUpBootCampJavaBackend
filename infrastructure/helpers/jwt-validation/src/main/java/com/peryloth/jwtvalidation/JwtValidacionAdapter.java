@@ -22,30 +22,24 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @RequiredArgsConstructor
 public class JwtValidacionAdapter implements IValidateJwt, IJwtTokenProvider, PasswordEncoder {
 
-    private static final String SECRET_KEY = "claveSuperSecretaDeAlMenos32Caracteres!!";
     private static final long EXPIRATION_TIME = 3600_000;
 
     private static final Logger log = LoggerFactory.getLogger(JwtValidacionAdapter.class);
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    private static Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-    }
+    private static final Key KEY_BY_MICRO = Keys.hmacShaKeyFor(JwtProperties.SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
     @Override
     public Mono<Boolean> validate(String jwt) {
         return Mono.justOrEmpty(jwt)
                 .filter(token -> token.startsWith("Bearer "))
                 .map(token -> token.substring(7))
-                .doOnNext(t -> log.debug("Token extraído: {}", t))
-                .map(JwtTokenProvider::validateTokenReactive)
-                .doOnNext(valid -> {
-                    log.error("JWT inválido para el token extraído");
-                })
-                .defaultIfEmpty(Mono.just(false))
-                .doOnError(e -> log.error("Error al validar el JWT: {}", e.getMessage()))
-                .flatMap(mono -> mono);
+                .flatMap(JwtTokenProvider::validateTokenReactive) // 👈 directo flatMap
+                .onErrorResume(e -> {
+                    log.error("Error al validar JWT: {}", e.getMessage());
+                    return Mono.just(false);
+                });
     }
 
     public Mono<String> createToken(String email) {
@@ -55,9 +49,26 @@ public class JwtValidacionAdapter implements IValidateJwt, IJwtTokenProvider, Pa
                         .setIssuer("hu2-service")
                         .setIssuedAt(new Date())
                         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                        .signWith(KEY_BY_MICRO, SignatureAlgorithm.HS256)
                         .compact()
         );
+    }
+
+    @Override
+    public Mono<String> getUsernameFromToken(String token) {
+        return Mono.fromCallable(() -> {
+            try {
+                Claims claims = Jwts.parser() // ✅ en 0.13.0
+                        .setSigningKey(KEY_BY_MICRO)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+                return claims.getSubject();
+            } catch (JwtException | IllegalArgumentException e) {
+                log.error("❌ Error al extraer el username del token: {}", e.getMessage());
+                return null;
+            }
+        });
     }
 
 
