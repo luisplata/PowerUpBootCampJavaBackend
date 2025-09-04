@@ -1,10 +1,6 @@
 # anotaciones de proyecto
 
-## problemas
-
-- No se pudo ejecutar migraciones con flyway de forma exitosa; se ejecutaron los SQL de forma manual en la base de datos.
-- No se como es la estrategia de conexion por colas para enviar y recibir por colas separadas para realizar una comunicacion entre microservicios.
-
+## preguntas
 
 ## TODO
 
@@ -13,6 +9,7 @@
 ### examples
 
 Request Postman
+
 ```aiignore
 {
   "email": "{{$randomEmail}}",
