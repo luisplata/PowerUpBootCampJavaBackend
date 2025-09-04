@@ -1,10 +1,14 @@
 package com.peryloth.api;
 
+import com.peryloth.api.dto.getUsuer.GetUserByDataRequestDTO;
+import com.peryloth.api.dto.getUsuer.GetUserByDataResponseDTO;
 import com.peryloth.api.dto.login.LoginRequestDTO;
 import com.peryloth.api.dto.login.LoginResponseDTO;
 import com.peryloth.api.dto.registry.UserValidationRequest;
 import com.peryloth.api.dto.registry.UsuarioRequestDTO;
+import com.peryloth.api.dto.validateToken.ValidateTokenResponseDTO;
 import com.peryloth.api.mapper.registry.UserDTOMapper;
+import com.peryloth.usecase.getusuerbyemail.IGetUsuerByEmailUseCase;
 import com.peryloth.usecase.login.ILogin;
 import com.peryloth.usecase.registry_user.IRegistryUserUseCase;
 import com.peryloth.usecase.validationclient.IValidationClientUseCase;
@@ -31,6 +35,7 @@ public class Handler {
     private final UserDTOMapper userDTOMapper;
     private final IValidationClientUseCase validationClientUseCase;
     private final ILogin loginUseCase;
+    private final IGetUsuerByEmailUseCase iGetUsuerByEmailUseCase;
 
     @Operation(
             summary = "Registrar un nuevo usuario",
@@ -135,7 +140,30 @@ public class Handler {
                 });
     }
 
-    public Mono<ServerResponse> getSolicitudes(ServerRequest request) {
-        return ServerResponse.ok().bodyValue("Aquí van las solicitudes");
+    public Mono<ServerResponse> validateToken(ServerRequest request) {
+        ValidateTokenResponseDTO response = new ValidateTokenResponseDTO("OK");
+
+        return ServerResponse.ok()
+                .bodyValue(response);
+    }
+
+    public Mono<ServerResponse> getUser(ServerRequest request) {
+        return request.bodyToMono(GetUserByDataRequestDTO.class).flatMap(dto ->
+                iGetUsuerByEmailUseCase.getUserByEmailAndDocument(dto.email())
+                        .flatMap(user -> {
+                            GetUserByDataResponseDTO responseDto = new GetUserByDataResponseDTO(
+                                    user.getEmail(),
+                                    user.getNombre() + " " + user.getApellido(),
+                                    user.getSalarioBase()
+                            );
+                            return ServerResponse.ok()
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .bodyValue(responseDto);
+                        })
+                        .switchIfEmpty(ServerResponse.status(404).bodyValue("Usuario no encontrado"))
+        ).onErrorResume(e -> {
+            log.error("Error al obtener usuario", e);
+            return ServerResponse.status(500).bodyValue("Error interno: " + e.getMessage());
+        });
     }
 }

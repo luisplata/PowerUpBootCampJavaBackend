@@ -80,8 +80,11 @@ public class RouterRest {
                 .andRoute(POST("/api/v1/login"), handler::login)
                 .andNest(path("/api/v1/usuarios/admin"),
                         route(POST(""), handler::saveAdmin)
-                ).andNest(path("/api/v1/solicitud"),
-                        route(GET(""), handler::getSolicitudes)
+                ).andNest(path("/api/v1/token/validate"),
+                        route(GET(""), handler::validateToken)
+                                .filter(authFilter)
+                ).andNest(path("/api/v1/users/getUser"),
+                        route(POST(""), handler::getUser)
                                 .filter(authFilter)
                 );
 

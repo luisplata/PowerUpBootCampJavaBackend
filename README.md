@@ -24,3 +24,7 @@ Request Postman
   "salarioBase":1
 }
 ```
+
+### API documentation
+
+- http://localhost:8081/webjars/swagger-ui/index.html
